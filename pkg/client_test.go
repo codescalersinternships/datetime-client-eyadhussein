@@ -140,4 +140,40 @@ func TestClient_GetCurrentDateTime(t *testing.T) {
 			t.Error("expected error but got nil")
 		}
 	})
+
+	t.Run("correct endpoint", func(t *testing.T) {
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path != "/datetime" {
+				t.Errorf("expected path /datetime, got %s", r.URL.Path)
+			}
+			fmt.Fprint(w, "2024-07-07 02:39:09")
+		}))
+		defer mockServer.Close()
+
+		client := NewRealClient(mockServer.URL, 1*time.Second)
+		_, err := client.GetCurrentDateTime()
+
+		if err != nil {
+			t.Error(err)
+		}
+	})
+
+	t.Run("correct Accept header", func(t *testing.T) {
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			accept := r.Header.Get("Accept")
+			expected := "text/plain;charset=UTF-8, application/json"
+			if accept != expected {
+				t.Errorf("expected Accept header %s, got %s", expected, accept)
+			}
+			fmt.Fprint(w, "2024-07-07 02:39:09")
+		}))
+		defer mockServer.Close()
+
+		client := NewRealClient(mockServer.URL, 1*time.Second)
+		_, err := client.GetCurrentDateTime()
+
+		if err != nil {
+			t.Error(err)
+		}
+	})
 }
