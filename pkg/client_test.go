@@ -76,21 +76,13 @@ func TestClient_GetCurrentDateTime(t *testing.T) {
 		)
 
 		data, err := client.GetCurrentDateTime()
-
-		if err != nil {
-			t.Errorf("expected err to be nil got %v", err)
-		}
+		assertError(t, err)
 
 		var resParsed string
 		err = json.Unmarshal(data, &resParsed)
 
-		if err != nil {
-			t.Errorf("expected err to be nil got %v", err)
-		}
-
-		if resParsed != expected {
-			t.Errorf("expected %s but got %s", expected, resParsed)
-		}
+		assertError(t, err)
+		assertEqual(t, resParsed, expected)
 	})
 
 	t.Run("handle text/plain format", func(t *testing.T) {
@@ -109,13 +101,8 @@ func TestClient_GetCurrentDateTime(t *testing.T) {
 
 		data, err := client.GetCurrentDateTime()
 
-		if err != nil {
-			t.Errorf("expected err to be nil got %v", err)
-		}
-
-		if string(data) != expected {
-			t.Errorf("expected %s but got %s", expected, data)
-		}
+		assertError(t, err)
+		assertEqual(t, string(data), expected)
 	})
 
 	t.Run("valid timeout", func(t *testing.T) {
@@ -124,9 +111,7 @@ func TestClient_GetCurrentDateTime(t *testing.T) {
 		)
 		_, err := client.GetCurrentDateTime()
 
-		if err != nil {
-			t.Errorf("expected no error but got %v", err)
-		}
+		assertError(t, err)
 	})
 
 	t.Run("invalid timeout", func(t *testing.T) {
@@ -136,9 +121,7 @@ func TestClient_GetCurrentDateTime(t *testing.T) {
 		)
 		_, err := client.GetCurrentDateTime()
 
-		if err == nil {
-			t.Error("expected error but got nil")
-		}
+		assertNoError(t, err)
 	})
 
 	t.Run("correct endpoint", func(t *testing.T) {
@@ -153,9 +136,7 @@ func TestClient_GetCurrentDateTime(t *testing.T) {
 		client := NewRealClient(mockServer.URL, 1*time.Second)
 		_, err := client.GetCurrentDateTime()
 
-		if err != nil {
-			t.Error(err)
-		}
+		assertError(t, err)
 	})
 
 	t.Run("correct Accept header", func(t *testing.T) {
@@ -172,8 +153,28 @@ func TestClient_GetCurrentDateTime(t *testing.T) {
 		client := NewRealClient(mockServer.URL, 1*time.Second)
 		_, err := client.GetCurrentDateTime()
 
-		if err != nil {
-			t.Error(err)
-		}
+		assertError(t, err)
+
 	})
+}
+
+func assertEqual(t *testing.T, got, want any) {
+	t.Helper()
+	if got != want {
+		t.Errorf("got %v want %v", got, want)
+	}
+}
+
+func assertError(t *testing.T, err error) {
+	t.Helper()
+	if err != nil {
+		t.Errorf("expected nil but got %v", err)
+	}
+}
+
+func assertNoError(t *testing.T, err error) {
+	t.Helper()
+	if err == nil {
+		t.Error("expected error but got nil")
+	}
 }
