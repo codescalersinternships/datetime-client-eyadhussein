@@ -20,15 +20,24 @@ type Client interface {
 }
 
 type RealClient struct {
-	host   string
-	port   string
-	client *http.Client
+	baseUrl string
+	port    string
+	client  *http.Client
 }
 
-func NewRealClient(host, port string, timeout time.Duration) *RealClient {
+func NewRealClient(baseUrl, port string, timeout time.Duration) *RealClient {
+	if baseUrl == "" {
+		baseUrl = os.Getenv("SERVER_URL")
+	}
+	if port == "" {
+		port = os.Getenv("PORT")
+	}
+
+	port = ":" + port
+
 	return &RealClient{
-		host: host,
-		port: port,
+		baseUrl: baseUrl,
+		port:    port,
 		client: &http.Client{
 			Timeout: timeout,
 		},
@@ -36,19 +45,7 @@ func NewRealClient(host, port string, timeout time.Duration) *RealClient {
 }
 
 func (c *RealClient) GetCurrentDateTime() ([]byte, error) {
-	var host = c.host
-	var port = ":" + c.port
-
-	if serverUrlEnv := os.Getenv("SERVER_URL"); serverUrlEnv != "" {
-		host = serverUrlEnv
-	}
-	if portEnv := os.Getenv("PORT"); portEnv != "" {
-		port = ":" + portEnv
-	}
-
-	url := host + port
-
-	req, err := http.NewRequest(http.MethodGet, url+"/datetime", nil)
+	req, err := http.NewRequest(http.MethodGet, c.baseUrl+c.port+"/datetime", nil)
 	if err != nil {
 		return nil, err
 	}
