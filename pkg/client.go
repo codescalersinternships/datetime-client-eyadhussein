@@ -3,6 +3,7 @@ package datetimeclient
 import (
 	"io"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -19,13 +20,15 @@ type Client interface {
 }
 
 type RealClient struct {
-	url    string
+	host   string
+	port   string
 	client *http.Client
 }
 
-func NewRealClient(url string, timeout time.Duration) *RealClient {
+func NewRealClient(host, port string, timeout time.Duration) *RealClient {
 	return &RealClient{
-		url: url,
+		host: host,
+		port: port,
 		client: &http.Client{
 			Timeout: timeout,
 		},
@@ -33,7 +36,19 @@ func NewRealClient(url string, timeout time.Duration) *RealClient {
 }
 
 func (c *RealClient) GetCurrentDateTime() ([]byte, error) {
-	req, err := http.NewRequest(http.MethodGet, c.url+"/datetime", nil)
+	var host = c.host
+	var port = ":" + c.port
+
+	if serverUrlEnv := os.Getenv("SERVER_URL"); serverUrlEnv != "" {
+		host = serverUrlEnv
+	}
+	if portEnv := os.Getenv("PORT"); portEnv != "" {
+		port = ":" + portEnv
+	}
+
+	url := host + port
+
+	req, err := http.NewRequest(http.MethodGet, url+"/datetime", nil)
 	if err != nil {
 		return nil, err
 	}

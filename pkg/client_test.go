@@ -72,6 +72,7 @@ func TestClient_GetCurrentDateTime(t *testing.T) {
 
 		client := NewRealClient(
 			mockServer.URL,
+			"",
 			1*time.Second,
 		)
 
@@ -96,6 +97,7 @@ func TestClient_GetCurrentDateTime(t *testing.T) {
 
 		client := NewRealClient(
 			mockServer.URL,
+			"",
 			time.Duration(1)*time.Second,
 		)
 
@@ -133,7 +135,7 @@ func TestClient_GetCurrentDateTime(t *testing.T) {
 		}))
 		defer mockServer.Close()
 
-		client := NewRealClient(mockServer.URL, 1*time.Second)
+		client := NewRealClient(mockServer.URL, "", 1*time.Second)
 		_, err := client.GetCurrentDateTime()
 
 		assertError(t, err)
@@ -150,7 +152,7 @@ func TestClient_GetCurrentDateTime(t *testing.T) {
 		}))
 		defer mockServer.Close()
 
-		client := NewRealClient(mockServer.URL, 1*time.Second)
+		client := NewRealClient(mockServer.URL, "", 1*time.Second)
 		_, err := client.GetCurrentDateTime()
 
 		assertError(t, err)
