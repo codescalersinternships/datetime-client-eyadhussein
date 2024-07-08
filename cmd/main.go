@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	datetimeclient "github.com/codescalersinternships/datetime-client-eyadhussein/pkg"
+	datetimeclient "github.com/codescalersinternships/datetime-client-eyadhussein/pkg/client"
 )
 
 func main() {

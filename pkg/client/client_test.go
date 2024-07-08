@@ -77,12 +77,12 @@ func TestClient_GetCurrentDateTime(t *testing.T) {
 		)
 
 		data, err := client.GetCurrentDateTime()
-		assertError(t, err)
+		assertNoError(t, err)
 
 		var resParsed string
 		err = json.Unmarshal(data, &resParsed)
 
-		assertError(t, err)
+		assertNoError(t, err)
 		assertEqual(t, resParsed, expected)
 	})
 
@@ -103,7 +103,7 @@ func TestClient_GetCurrentDateTime(t *testing.T) {
 
 		data, err := client.GetCurrentDateTime()
 
-		assertError(t, err)
+		assertNoError(t, err)
 		assertEqual(t, string(data), expected)
 	})
 
@@ -113,7 +113,7 @@ func TestClient_GetCurrentDateTime(t *testing.T) {
 		)
 		_, err := client.GetCurrentDateTime()
 
-		assertError(t, err)
+		assertNoError(t, err)
 	})
 
 	t.Run("invalid timeout", func(t *testing.T) {
@@ -123,7 +123,7 @@ func TestClient_GetCurrentDateTime(t *testing.T) {
 		)
 		_, err := client.GetCurrentDateTime()
 
-		assertNoError(t, err)
+		assertError(t, err)
 	})
 
 	t.Run("correct endpoint", func(t *testing.T) {
@@ -138,7 +138,7 @@ func TestClient_GetCurrentDateTime(t *testing.T) {
 		client := NewRealClient(mockServer.URL, "", 1*time.Second)
 		_, err := client.GetCurrentDateTime()
 
-		assertError(t, err)
+		assertNoError(t, err)
 	})
 
 	t.Run("correct Accept header", func(t *testing.T) {
@@ -155,7 +155,7 @@ func TestClient_GetCurrentDateTime(t *testing.T) {
 		client := NewRealClient(mockServer.URL, "", 1*time.Second)
 		_, err := client.GetCurrentDateTime()
 
-		assertError(t, err)
+		assertNoError(t, err)
 
 	})
 }
@@ -167,14 +167,14 @@ func assertEqual(t *testing.T, got, want any) {
 	}
 }
 
-func assertError(t *testing.T, err error) {
+func assertNoError(t *testing.T, err error) {
 	t.Helper()
 	if err != nil {
 		t.Errorf("expected nil but got %v", err)
 	}
 }
 
-func assertNoError(t *testing.T, err error) {
+func assertError(t *testing.T, err error) {
 	t.Helper()
 	if err == nil {
 		t.Error("expected error but got nil")

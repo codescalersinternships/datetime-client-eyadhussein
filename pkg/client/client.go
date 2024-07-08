@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/codescalersinternships/datetime-client-eyadhussein/pkg/backoff"
 )
 
 type HttpClient interface {
@@ -45,6 +47,7 @@ func NewRealClient(baseUrl, port string, timeout time.Duration) *RealClient {
 }
 
 func (c *RealClient) GetCurrentDateTime() ([]byte, error) {
+	backoff := backoff.NewRealBackOff(1, 3)
 	req, err := http.NewRequest(http.MethodGet, c.baseUrl+c.port+"/datetime", nil)
 	if err != nil {
 		return nil, err
@@ -52,7 +55,10 @@ func (c *RealClient) GetCurrentDateTime() ([]byte, error) {
 
 	req.Header.Add("Accept", "text/plain;charset=UTF-8, application/json")
 
-	resp, err := c.client.Do(req)
+	resp, err := backoff.Retry(func() (*http.Response, error) {
+		resp, err := c.client.Do(req)
+		return resp, err
+	})
 
 	if err != nil {
 		return nil, err
