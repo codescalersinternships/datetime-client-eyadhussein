@@ -2,6 +2,8 @@ package backoff
 
 import (
 	"errors"
+	"io"
+	"log"
 	"net/http"
 	"testing"
 	"time"
@@ -107,4 +109,26 @@ func assertNoError(t *testing.T, err error) {
 	if err != nil {
 		t.Errorf("expected nil but got %v", err)
 	}
+}
+
+func ExampleBackOff_Retry() {
+	backoff := NewRealBackOff(1*time.Second, 3)
+	operation := func() (*http.Response, error) {
+		return &http.Response{StatusCode: http.StatusOK}, nil
+	}
+
+	resp, err := backoff.Retry(operation)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println(string(body))
 }

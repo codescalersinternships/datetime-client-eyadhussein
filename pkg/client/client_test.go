@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -98,7 +99,7 @@ func TestClient_GetCurrentDateTime(t *testing.T) {
 		client := NewRealClient(
 			mockServer.URL,
 			"",
-			time.Duration(1)*time.Second,
+			1*time.Second,
 		)
 
 		data, err := client.GetCurrentDateTime()
@@ -179,4 +180,16 @@ func assertError(t *testing.T, err error) {
 	if err == nil {
 		t.Error("expected error but got nil")
 	}
+}
+
+func ExampleClient_GetCurrentDateTime() {
+	client := NewRealClient("http://localhost", "8080", 1*time.Second)
+
+	resp, err := client.GetCurrentDateTime()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println(string(resp))
 }

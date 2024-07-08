@@ -1,3 +1,4 @@
+// Package datetimeclient provides a client for interacting with a datetime server.
 package datetimeclient
 
 import (
@@ -9,24 +10,20 @@ import (
 	"github.com/codescalersinternships/datetime-client-eyadhussein/pkg/backoff"
 )
 
-type HttpClient interface {
-	struct {
-		time.Duration
-	}
-	Do(req *http.Request) (*http.Response, error)
-}
-
+// Client interface defines the method for getting the current date and time.
 type Client interface {
-	string
-	HttpClient
+	GetCurrentDateTime() ([]byte, error)
 }
 
+// RealClient implements Client and uses a http client for interacting with the datetime server.
 type RealClient struct {
 	baseUrl string
 	port    string
 	client  *http.Client
 }
 
+// NewRealClient creates and returns a new RealClient instance.
+// It uses environment variables for baseUrl and port if not provided.
 func NewRealClient(baseUrl, port string, timeout time.Duration) *RealClient {
 	if baseUrl == "" {
 		baseUrl = os.Getenv("SERVER_URL")
@@ -46,6 +43,9 @@ func NewRealClient(baseUrl, port string, timeout time.Duration) *RealClient {
 	}
 }
 
+// GetCurrentDateTime sends a request to the datetime server and returns the current date and time.
+// It uses a backoff strategy for retrying the request in case of failures.
+// Returns the response body as a byte slice and any error encountered.
 func (c *RealClient) GetCurrentDateTime() ([]byte, error) {
 	backoff := backoff.NewRealBackOff(1, 3)
 	req, err := http.NewRequest(http.MethodGet, c.baseUrl+c.port+"/datetime", nil)
